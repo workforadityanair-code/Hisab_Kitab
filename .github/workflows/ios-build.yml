@@ -1,0 +1,36 @@
+name: Build iOS Simulator App for Appetize
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-simulator:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Build iOS Simulator App
+        run: flutter build ios --simulator --debug
+
+      - name: Compress App for Appetize
+        run: |
+          cd build/ios/iphonesimulator
+          zip -r app.zip Runner.app
+
+      - name: Upload Simulator Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: build/ios/iphonesimulator/app.zip
